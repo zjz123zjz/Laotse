@@ -1,0 +1,98 @@
+
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>css大转盘</title>
+		<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" name="viewport" />
+	</head>
+	<style>
+	
+		.container {
+			position: relative;
+			width: 320px;
+			height: 320px;
+		}
+		
+		.img {
+			width: 100%;
+			height: 100%;
+			margin: 0px;
+			transform-origin: center;
+			-webkit-transform-origin: center;
+			transform: rotate(0deg);
+			-webkit-transform: rotate(0deg);
+		}
+		
+		.point, .text {
+			position: absolute;
+			width: 100px;
+			left: 0px;
+			top: 0px;
+			right: 0px;
+			bottom: 0px;
+			margin: auto;
+			transform: translate(0px, -20px);
+			-webkit-transform: translate(0px, -20px);
+		}
+		
+		.text {
+			width: 100px;
+			height: 20px;
+			line-height: 20px;
+			text-align: center;
+			font-size: 15px;
+			transform: translate(0px, -10px);
+			-webkit-transform: translate(0px, -10px);
+			pointer-events: none;
+		}
+	
+		.pan_c {
+			width:300px;
+			margin:10px;
+			height:300px;
+		}
+
+		@keyframes start_rotate{
+			0%{
+				transform: rotate(0deg);
+			}100%{
+				transform: rotate(360deg);
+			}
+		}
+
+		.pan_c.rotate {
+			/* 用2秒时间，转到360度 加速ease-in */
+			transition: transform 2s ease-in;
+			transform: rotate(360deg);
+
+			/* 用2秒之后，匀速一直转动 */
+			/* 播放start_rotate关键帧动画，完成动画所花费的时间0.6s，线性匀速，动画开始之前的延迟2秒，一直重复 */
+			animation: start_rotate .6s linear 2s infinite forwards;
+		}
+
+
+	</style>
+
+	<body>
+		<p style='margin:50px 20px;'>点击抽奖后，先加速，然后一直无限匀速旋转</p>
+		<div class='container'>
+			<div class='pan_c'>
+				<img src='./img/pan.png' class='img' />
+			</div>
+			
+			<img src='./img/point.png' class='point' />
+			<text class='text'>点击抽奖</text>
+
+		</div>
+	</body>
+	<script>
+
+		document.querySelector('.point').addEventListener('click', function() {
+			document.querySelector('.pan_c').className='pan_c rotate';
+		});
+			
+	</script>
+
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>css大转盘</title>
+	<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"
+		name="viewport" />
+</head>
+<style>
+	.container {
+		position: relative;
+		width: 320px;
+		height: 320px;
+	}
+
+	.img {
+		width: 100%;
+		height: 100%;
+		margin: 0px;
+		transform-origin: center;
+		-webkit-transform-origin: center;
+		transform: rotate(0deg);
+		-webkit-transform: rotate(0deg);
+	}
+
+	.point,
+	.text {
+		position: absolute;
+		width: 100px;
+		left: 0px;
+		top: 0px;
+		right: 0px;
+		bottom: 0px;
+		margin: auto;
+		transform: translate(0px, -20px);
+		-webkit-transform: translate(0px, -20px);
+	}
+
+	.text {
+		width: 100px;
+		height: 20px;
+		line-height: 20px;
+		text-align: center;
+		font-size: 15px;
+		transform: translate(0px, -10px);
+		-webkit-transform: translate(0px, -10px);
+		pointer-events: none;
+	}
+
+
+	.pan_c {
+		width: 300px;
+		margin: 10px;
+		height: 300px;
+	}
+</style>
+
+<body>
+	<p style='margin:50px 20px;'>点击抽奖后，先加速，然后一直无限匀速旋转</p>
+
+	<div class='container'>
+
+		<div class='pan_c'>
+			<img src='./img/pan.png' class='img' />
+		</div>
+
+		<img src='./img/point.png' class='point' />
+		<text class='text'>点击抽奖</text>
+
+	</div>
+
+	<button onclick="stop()">Stop</button>
+</body>
+<script>
+
+	var price_data = [{//中奖列表
+		level: 1,
+		level_str: '一等奖',
+		min: 0,
+		max: 45
+	}, {
+		level: 2,
+		level_str: '二等奖',
+		min: 315,
+		max: 360,
+	}, {
+		level: 3,
+		level_str: '三等奖',
+		min: 270,
+		max: 315,
+	}, {
+		level: 4,
+		level_str: '四等奖',
+		min: 225,
+		max: 270,
+	}, {
+		level: 5,
+		level_str: '五等奖',
+		min: 180,
+		max: 225,
+	}, {
+		level: 6,
+		level_str: '六等奖',
+		min: 135,
+		max: 180,
+	}, {
+		level: 7,
+		level_str: '七等奖',
+		min: 90,
+		max: 135,
+	}, {
+		level: 8,
+		level_str: '八等奖',
+		min: 45,
+		max: 90,
+	}]
+
+	var last_position = 0;
+
+	var styleEl1 = document.createElement('style');
+	document.head.appendChild(styleEl1);
+
+	document.addEventListener('DOMContentLoaded', function () {
+
+		document.querySelector('.point').addEventListener('click', function () {
+			rotate_start()
+		});
+	});
+
+
+	function stop() {
+		
+		rotate_finish(price_data[2]);
+	}
+
+	function insertRule(sheet, selectorText, cssText, position) {//插入样式
+		if (sheet.insertRule) {
+			sheet.insertRule(selectorText + "{" + cssText + "}", position);
+		} else if (sheet.addRule) {
+			sheet.addRule(selectorText, cssText, position);
+		}
+	}
+	function deleteRule(sheet, index) {//删除规则
+
+		if (sheet.deleteRule) {
+			sheet.deleteRule(index);
+		} else if (sheet.removeRule) {
+			sheet.removeRule(index);
+		}
+	}
+
+	function clearRule(sheet) {//清除rules
+		var len = (sheet.cssRules || sheet.rules).length;
+		if (len) { //没有内容
+			for (var i = len - 1; i >= 0; i--) {
+				deleteRule(sheet, i);
+			}
+		}
+	}
+
+	var rotate_start = function () {//开始旋转
+		clearRule(styleEl1.sheet);
+		document.querySelector('.pan_c').className = 'pan_c'
+
+		var name = 'b' + Math.random().toString(36).substr(2);
+		insertRule(styleEl1.sheet, '@keyframes ' + name, '0%{transform: rotate(' + last_position + 'deg);-webkit-transform: rotate(' + last_position + 'deg);}100%{transform: rotate(' + (last_position + 360) + 'deg);-webkit-transform: rotate(' + (last_position + 360) + 'deg);}', 0);
+		insertRule(styleEl1.sheet, '@-webkit-keyframes ' + name, '0%{transform: rotate(' + last_position + 'deg);-webkit-transform: rotate(' + last_position + 'deg);}100%{transform: rotate(' + (last_position + 360) + 'deg);-webkit-transform: rotate(' + (last_position + 360) + 'deg);}', 1);
+		insertRule(styleEl1.sheet, '.pan_c.' + name, 'transition:transform 1s ease-in;-webkit-transition:transform 1s ease-in;transform: rotate(' + (last_position + 360) + 'deg);-webkit-transform: rotate(' + (last_position + 360) + 'deg) ', 2);
+		insertRule(styleEl1.sheet, '.pan_c.' + name, 'animation:' + name + ' .6s linear 1s infinite forwards;-webkit-animation:' + name + ' .6s linear 1s infinite forwards;', 3);
+		document.querySelector('.pan_c').className = 'pan_c ' + name;
+	}
+ 
+	var rotate_finish = function (rs_data) {
+
+		get_prize = rs_data;
+
+		var rotate_finish = rs_data.min + 10 + (25 * Math.random() >> 0) + 360;
+
+		var transform_match = getComputedStyle(document.querySelector('.pan_c')).transform.replace(/[a-zA-Z()]/g, '').split(',');
+
+		var _angle = Math.acos(+transform_match[0]) / (Math.PI / 180), _angle_direction = +transform_match[1];//旋转的角度和角度方向
+		if (_angle != _angle) {//90度270度数
+			if (_angle_direction > 0) {//90度
+				_angle = 90;
+			} else {//270度
+				_angle = 270;
+			}
+		} else {//其他度数
+			if (_angle_direction != _angle_direction) {//180度和0度
+
+			} else {
+				if (_angle_direction < 0) {//超过180度
+					_angle = 360 - _angle;
+				}
+			}
+		}
+		var rotate_begin = (_angle + 100.2) % 360; //求出度数
+
+
+		if (rotate_finish - rotate_begin < 360) {//保证转的角度足够大。
+			rotate_finish += 360;
+		}
+
+		last_position = rotate_finish; //最终度数
+
+		var rs_time = (rotate_finish - rotate_begin) / 360 * 1.1;
+
+		clearRule(styleEl1.sheet);
+
+		var name = 'a' + Math.random().toString(36).substr(2);
+		insertRule(styleEl1.sheet, '@keyframes ' + name, '0%{transform: rotate(' + rotate_begin + 'deg);-webkit-transform: rotate(' + rotate_begin + 'deg);}100%{transform: rotate(' + rotate_finish + 'deg);-webkit-transform: rotate(' + rotate_finish + 'deg);}', 0);
+		insertRule(styleEl1.sheet, '@-webkit-keyframes ' + name, '0%{transform: rotate(' + rotate_begin + 'deg);-webkit-transform: rotate(' + rotate_begin + 'deg);}100%{transform: rotate(' + rotate_finish + 'deg);-webkit-transform: rotate(' + rotate_finish + 'deg);}', 1);
+		insertRule(styleEl1.sheet, '.pan_c.' + name, 'animation:' + name + ' ' + rs_time + 's ease-out 0s 1 forwards;-webkit-animation:' + name + ' ' + rs_time + 's ease-out 0s 1 forwards;', 2);
+		document.querySelector('.pan_c').className = 'pan_c ' + name;
+	}
+
+</script>
+
+</html>
